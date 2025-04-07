@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "Demo": {
+      "command": "C:\\develop\\tiny-mcp-server\\mcp.exe",
+      "args": [
+      ]
+    }
+  }
+}
