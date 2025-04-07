@@ -537,6 +537,9 @@ public:
 		for (i = 0; i < d.depth.size(); i++) {
 			std::string const &s = d.depth[i];
 			if (s.empty()) break;
+			if (path[0] == '*' && path[1] == '*' && path[2] == 0) {
+				return true;
+			}
 			if (path[0] == '*' && s.c_str()[s.size() - 1] == '{') {
 				if (path[1] == 0) {
 					if (state() == StartObject) {
@@ -563,6 +566,9 @@ public:
 			}
 			if (strncmp(path, s.c_str(), s.size()) != 0) return false;
 			path += s.size();
+		}
+		if (path[0] == '*' && path[1] == '*' && path[2] == 0) {
+			return true;
 		}
 		if (path[0] == '*') {
 			if (path[1] == 0 && i == d.depth.size() && (isvalue() || state() == EndObject || state() == EndArray)) {
