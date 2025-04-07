@@ -13,7 +13,7 @@ std::string getline()
 struct Message {
 	std::string method;
 	struct Params {
-		std::string protocolversion;
+		std::string protocolVersion;
 		struct Capabilities {
 			struct Roots {
 				bool listChanged = false;
@@ -41,7 +41,7 @@ struct Message {
 		std::vector<Argument> arguments;
 	} params;
 	struct Result {
-		std::string protocolversion;
+		std::string protocolVersion;
 		struct Capabilities {
 			struct Experimental {
 			} experimental;
@@ -56,8 +56,10 @@ struct Message {
 				bool listChanged = false;
 			} tools;
 		} capabilities;
-		std::string serverinfo_name;
-		std::string serverinfo_version;
+		struct ServerInfo {
+			std::string name;
+			std::string version;
+		} serverInfo;
 		struct Tool {
 			std::string name;
 			std::string description;
@@ -71,7 +73,7 @@ struct Message {
 				std::vector<std::string> required;
 				std::string title;
 				std::string type;
-			} input_schema;
+			} inputSchema;
 		};
 		std::vector<Tool> tools;
 	} result;
@@ -92,7 +94,7 @@ Message parse_message(std::string const &line)
 		if (reader.match("{method")) {
 			request.method = reader.string();
 		} else if (reader.match("{params{protocolVersion")) {
-			request.params.protocolversion = reader.string();
+			request.params.protocolVersion = reader.string();
 		} else if (reader.match("{params{**")) {
 			if (reader.match("{params{capabilities{roots{listChanged")) {
 				request.params.capabilities.roots.listChanged = reader.istrue();
@@ -112,7 +114,7 @@ Message parse_message(std::string const &line)
 			}
 		} else if (reader.match("{result{**")) {
 			if (reader.match("{result{protocolVersion")) {
-				request.result.protocolversion = reader.string();
+				request.result.protocolVersion = reader.string();
 			} else if (reader.match("{result{capabilities{prompts{listChanged")) {
 				request.result.capabilities.prompts.listChanged = reader.istrue();
 			} else if (reader.match("{result{capabilities{resources{subscribe")) {
@@ -122,9 +124,9 @@ Message parse_message(std::string const &line)
 			} else if (reader.match("{result{capabilities{tools{listChanged")) {
 				request.result.capabilities.tools.listChanged = reader.istrue();
 			} else if (reader.match("{result{serverInfo{name")) {
-				request.result.serverinfo_name = reader.string();
+				request.result.serverInfo.name = reader.string();
 			} else if (reader.match("{result{serverInfo{version")) {
-				request.result.serverinfo_version = reader.string();
+				request.result.serverInfo.version = reader.string();
 			} else if (reader.match("{result{tools[{name")) {
 				tool.name = reader.string();
 			} else if (reader.match("{result{tools[{description")) {
@@ -137,15 +139,15 @@ Message parse_message(std::string const &line)
 				if (reader.state() == jstream::StartObject) {
 					property.name = reader.key();
 				} else if (reader.state() == jstream::EndObject) {
-					tool.input_schema.properties.push_back(property);
+					tool.inputSchema.properties.push_back(property);
 					property = {};
 				}
 			} else if (reader.match("{result{tools[{inputSchema{required[*")) {
-				tool.input_schema.required.push_back(reader.string());
+				tool.inputSchema.required.push_back(reader.string());
 			} else if (reader.match("{result{tools[{inputSchema{title")) {
-				tool.input_schema.title = reader.string();
+				tool.inputSchema.title = reader.string();
 			} else if (reader.match("{result{tools[{inputSchema{type")) {
-				tool.input_schema.type = reader.string();
+				tool.inputSchema.type = reader.string();
 			}
 		} else if (reader.match("{jsonrpc")) {
 			request.jsonrpc = reader.string();
